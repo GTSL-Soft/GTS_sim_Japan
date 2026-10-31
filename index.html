@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>超巨大娘 災害進行観測速報【日本全国展開版】 - National Disaster Dashboard</title>
+  <link rel="stylesheet" href="./leaflet/leaflet.css" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <div id="app" class="app-container">
+    <!-- ヘッダー（気象庁・全国災害対策本部風） -->
+    <header class="typhoon-header">
+      <div class="header-left">
+        <span class="warning-badge" id="system-badge">国家非常事態警報</span>
+        <h1 class="header-title">超巨大娘 災害進行観測速報</h1>
+        <span class="header-sub">日本列島全域 統合災害監視システム</span>
+      </div>
+      <div class="header-right">
+        <div class="clock-display" id="clock-display">2026-10-21 10:00:00 JST</div>
+        <div class="fps-meter">FPS: <span id="fps-display">60</span></div>
+      </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <div class="main-layout">
+      <!-- 左側：管制コントロール＆設定パネル -->
+      <aside class="control-panel">
+        <div class="panel-section">
+          <h2 class="section-title">【個体識別・侵攻パラメータ】</h2>
+          <div class="form-group">
+            <label for="giantess-name">個体識別名（巨大娘）</label>
+            <input type="text" id="giantess-name" value="邪神・恵那" />
+          </div>
+          <div class="form-group">
+            <label for="scale-s">倍率 S (スケール): <span id="scale-value" class="highlight-val">3000</span> 倍</label>
+            <input type="range" id="scale-s" min="100" max="10000" step="50" value="3000" />
+            <div class="scale-desc">
+              推定身長: <span id="est-height">4.8km (4,800m)</span> / 速度: <span id="est-speed">1,500</span>m/s (時速<span id="est-speed-kmh">5,400</span>km)
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="skill-name">必殺技名</label>
+            <input type="text" id="skill-name" value="おっぱいレーザー" />
+          </div>
+          <div class="form-group">
+            <label for="skill-se-select">必殺技SE</label>
+            <select id="skill-se-select">
+              <option value="Special1.wav">Special1</option>
+              <option value="Special2.wav">Special2</option>
+              <option value="Special3.wav">Special3</option>
+              <option value="Special4.wav">Special4</option>
+            </select>
+          </div>
+          <div class="form-group special-gauge-box">
+            <div class="gauge-label-row">
+              <label>必殺技ゲージ（犠牲者で充填）</label>
+              <span class="gauge-text" id="special-gauge-text">0 / 10,000</span>
+            </div>
+            <div class="gauge-track">
+              <div class="gauge-fill" id="special-gauge-fill"></div>
+            </div>
+            <button type="button" id="btn-special-attack" class="btn btn-special" disabled>
+              ⚡ 必殺技準備中 (0%)
+            </button>
+          </div>
+          <div class="form-group">
+            <label>シミュレーション速度</label>
+            <div class="speed-buttons">
+              <button type="button" class="btn-speed active" data-speed="1">1x</button>
+              <button type="button" class="btn-speed" data-speed="5">5x</button>
+              <button type="button" class="btn-speed" data-speed="10">10x</button>
+              <button type="button" class="btn-speed" data-speed="20">20x</button>
+              <button type="button" class="btn-speed" data-speed="50">50x</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h2 class="section-title">【有名侵攻ルート即時選択】</h2>
+          <div class="preset-route-grid">
+            <button type="button" class="btn btn-preset" data-route="tokaido">🗼→🏯 東海道壊滅（東京→大阪）</button>
+            <button type="button" class="btn btn-preset" data-route="traverse">🍎→🍜 列島大縦断（青森→福岡）</button>
+            <button type="button" class="btn btn-preset" data-route="tohoku">🎋→🗼 奥羽南下（仙台→東京）</button>
+            <button type="button" class="btn btn-preset" data-route="sanyo">🐙→🕊️ 瀬戸内蹂躙（大阪→広島）</button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h2 class="section-title">【進路設定】</h2>
+          <p class="instruction-text" id="instruction-text">
+            地図上をクリック、または上の<strong>【侵攻ルートプリセット】</strong>を選択してください。
+          </p>
+          <div class="route-status">
+            <div class="point-badge" id="start-badge">出現: 未設定</div>
+            <div class="point-badge" id="goal-badge">到達: 未設定</div>
+          </div>
+          <div class="button-group">
+            <button id="btn-start" class="btn btn-danger" disabled>侵攻シミュレーション開始</button>
+            <button id="btn-reset" class="btn btn-secondary">地点クリア</button>
+          </div>
+        </div>
+
+        <div class="panel-section live-stats">
+          <h2 class="section-title">【現在の災害状況速報】</h2>
+          <div class="stat-card">
+            <div class="stat-label">累積推定犠牲者数</div>
+            <div class="stat-value danger-text" id="stat-casualties">0 <span class="unit">人</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">累積被害総額（地価換算）</div>
+            <div class="stat-value warning-text" id="stat-damage">0 <span class="unit">円</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">被災自治体数（市区町村）</div>
+            <div class="stat-value" id="stat-pref-count">0 / 1,897 <span class="unit">自治体</span></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 中央：地図領域 -->
+      <main class="map-wrapper" id="map-wrapper">
+        <div id="map" class="map-container"></div>
+        <!-- 必殺技演出用オーバーレイ -->
+        <div id="skill-flash-overlay" class="skill-flash-overlay"></div>
+        <div id="skill-banner" class="skill-banner" style="display: none;">
+          <span class="skill-label">NATIONAL EMERGENCY SPECIAL ATTACK</span>
+          <h2 class="skill-title" id="banner-skill-name">おっぱいレーザー</h2>
+          <p class="skill-desc">広域壊滅！ 紫色破壊領域急拡大中！</p>
+        </div>
+      </main>
+
+      <!-- 右側：速報ログ＆破壊ランドマークパネル -->
+      <aside class="log-panel">
+        <h2 class="section-title">【緊急速報・破壊観測ログ】</h2>
+        <div class="log-stream" id="log-stream">
+          <div class="log-item info">
+            <span class="log-time">[初期化]</span> 全国統合災害監視システム待機中。
+          </div>
+        </div>
+
+        <h2 class="section-title" style="margin-top: 16px;">【全国主要施設被災状況】</h2>
+        <div class="landmark-list" id="landmark-list">
+          <div class="empty-notice">被災施設なし</div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ゴール到達時 最終リザルトモーダル -->
+    <div id="result-modal" class="modal-overlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <span class="modal-badge">最終災害対策報告書</span>
+          <h2 class="modal-title">巨大娘 侵攻終了サマリー（全国1,700自治体観測）</h2>
+        </div>
+        <div class="modal-body">
+          <div class="story-summary-box">
+            <p id="res-story-text" class="story-text"></p>
+          </div>
+
+          <div class="summary-metrics-grid">
+            <div class="metric-box">
+              <span class="metric-label">総犠牲者数</span>
+              <span class="metric-value danger-text" id="res-casualties">0人</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">総被害額</span>
+              <span class="metric-value warning-text" id="res-damage">0円</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">被災自治体数</span>
+              <span class="metric-value" id="res-pref-count">0 自治体</span>
+            </div>
+            <div class="metric-box">
+              <span class="metric-label">倒壊ランドマーク数</span>
+              <span class="metric-value" id="res-landmarks-count">0</span>
+            </div>
+          </div>
+
+          <div class="result-detail-columns">
+            <div class="detail-col">
+              <h3>被災自治体一覧（被害額順）</h3>
+              <div class="result-ward-list" id="res-pref-list"></div>
+            </div>
+            <div class="detail-col">
+              <h3>破壊された全国主要施設</h3>
+              <div class="result-landmark-list" id="res-landmark-list"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btn-modal-retry" class="btn btn-primary">同じ進路でリトライ</button>
+          <button id="btn-modal-reset" class="btn btn-secondary">進路を再設定する</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./bundle.js"></script>
+</body>
+</html>

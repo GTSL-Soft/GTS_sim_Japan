@@ -1,0 +1,752 @@
+/* 巨大娘進路予想・災害速報システム【日本全国版】サイバー防災UI */
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@400;700;900&display=swap');
+
+:root {
+  --bg-dark: #0a0e17;
+  --bg-panel: rgba(16, 23, 38, 0.95);
+  --bg-card: rgba(26, 38, 62, 0.85);
+  --border-color: #243552;
+  --accent-cyan: #00e5ff;
+  --accent-danger: #ff334b;
+  --accent-warning: #ffb703;
+  --accent-purple: #c77dff;
+  --text-main: #e2e8f0;
+  --text-dim: #94a3b8;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-main: 'Zen Kaku Gothic New', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: var(--font-main);
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ヘッダー */
+.typhoon-header {
+  height: 52px;
+  background: linear-gradient(90deg, #0d1527 0%, #152238 100%);
+  border-bottom: 2px solid var(--accent-cyan);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 229, 255, 0.15);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.warning-badge {
+  background: var(--accent-danger);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  animation: pulse-danger 2s infinite;
+}
+
+@keyframes pulse-danger {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(0.98); }
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  color: #ffffff;
+}
+
+.header-sub {
+  font-size: 12px;
+  color: var(--accent-cyan);
+  font-weight: 700;
+  background: rgba(0, 229, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.clock-display {
+  color: var(--accent-cyan);
+}
+
+.fps-meter {
+  color: var(--text-dim);
+}
+
+/* メインレイアウト */
+.main-layout {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 52px);
+  position: relative;
+}
+
+/* 左側：管制パネル */
+.control-panel {
+  width: 330px;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border-color);
+  padding: 14px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 500;
+}
+
+.panel-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--accent-cyan);
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.form-group {
+  margin-bottom: 10px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.form-group input[type="text"] {
+  width: 100%;
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 6px 10px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.form-group select {
+  width: 100%;
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 6px 10px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+}
+
+.form-group select:focus {
+  border-color: var(--accent-cyan);
+}
+
+.form-group input[type="range"] {
+  width: 100%;
+  cursor: pointer;
+  accent-color: var(--accent-cyan);
+}
+
+.highlight-val {
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.scale-desc {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* プリセット進路ボタングリッド */
+.preset-route-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.btn-preset {
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  color: var(--text-main);
+  padding: 6px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.btn-preset:hover {
+  background: rgba(0, 229, 255, 0.2);
+  border-color: var(--accent-cyan);
+  color: #fff;
+}
+
+/* 必殺技ゲージUI */
+.special-gauge-box {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.gauge-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.gauge-text {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent-purple);
+  font-weight: 700;
+}
+
+.gauge-track {
+  width: 100%;
+  height: 8px;
+  background: #111827;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #374151;
+  margin-bottom: 8px;
+}
+
+.gauge-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #9900ee, #ff007f);
+  box-shadow: 0 0 10px rgba(255, 0, 127, 0.6);
+  transition: width 0.3s ease;
+}
+
+.btn-special {
+  width: 100%;
+  background: #1f293d;
+  color: #64748b;
+  border: 1px solid #334155;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 900;
+  border-radius: 4px;
+  cursor: not-allowed;
+  transition: all 0.25s ease;
+}
+
+.btn-special.ready {
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  color: #ffffff;
+  border: 1px solid #f43f5e;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(236, 72, 153, 0.7);
+  animation: pulse-ready 1.2s infinite;
+}
+
+@keyframes pulse-ready {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+/* 速度ボタン */
+.speed-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-speed {
+  flex: 1;
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  color: var(--text-dim);
+  padding: 5px 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-speed.active {
+  background: var(--accent-cyan);
+  color: #000;
+  border-color: var(--accent-cyan);
+}
+
+.instruction-text {
+  font-size: 11px;
+  color: var(--text-main);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.route-status {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.point-badge {
+  flex: 1;
+  background: #0f172a;
+  border: 1px dashed var(--border-color);
+  padding: 5px;
+  font-size: 11px;
+  text-align: center;
+  color: var(--text-dim);
+  border-radius: 4px;
+}
+
+.point-badge.active-start {
+  background: rgba(0, 229, 255, 0.15);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+.point-badge.active-goal {
+  background: rgba(255, 51, 75, 0.15);
+  border-color: var(--accent-danger);
+  color: var(--accent-danger);
+  font-weight: 700;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.btn {
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 900;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ff334b 0%, #d90429 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 51, 75, 0.3);
+}
+
+.btn-danger:disabled {
+  background: #334155;
+  color: #64748b;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-dim);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+/* ライブ速報カード */
+.stat-card {
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+}
+
+.danger-text { color: var(--accent-danger); }
+.warning-text { color: var(--accent-warning); }
+.unit { font-size: 11px; font-weight: normal; color: var(--text-dim); }
+
+.step-increment {
+  font-size: 13px;
+  font-weight: bold;
+  color: #ff6b81;
+}
+
+/* 中央：地図 */
+.map-wrapper {
+  flex: 1;
+  position: relative;
+  background: #000;
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* 画面シェイクアニメーション */
+.shake-active {
+  animation: screen-shake 0.8s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes screen-shake {
+  10%, 90% { transform: translate3d(-3px, 0, 0); }
+  20%, 80% { transform: translate3d(5px, -3px, 0); }
+  30%, 50%, 70% { transform: translate3d(-6px, 4px, 0); }
+  40%, 60% { transform: translate3d(6px, -4px, 0); }
+}
+
+/* フラッシュ演出 */
+.skill-flash-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2000;
+}
+
+.skill-flash-overlay.flash-active {
+  animation: flash-anim 0.7s ease-out;
+}
+
+@keyframes flash-anim {
+  0% { opacity: 0.8; }
+  100% { opacity: 0; }
+}
+
+/* 必殺技バナー */
+.skill-banner {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: rgba(17, 24, 39, 0.95);
+  border: 2px solid var(--accent-purple);
+  box-shadow: 0 0 30px rgba(199, 125, 255, 0.6);
+  border-radius: 8px;
+  padding: 16px 36px;
+  text-align: center;
+  z-index: 2100;
+  opacity: 0;
+  transition: all 0.4s ease;
+  pointer-events: none;
+}
+
+.skill-banner.active {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.skill-label {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--accent-purple);
+  letter-spacing: 3px;
+  font-weight: 900;
+}
+
+.skill-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: #fff;
+  margin: 4px 0;
+  letter-spacing: 2px;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
+}
+
+.skill-desc {
+  font-size: 12px;
+  color: #ff99ff;
+}
+
+/* 右側：ログパネル */
+.log-panel {
+  width: 330px;
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border-color);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  z-index: 500;
+}
+
+.log-stream {
+  flex: 1;
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px;
+  overflow-y: auto;
+  font-size: 11px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.log-item {
+  border-left: 3px solid #64748b;
+  padding-left: 6px;
+}
+
+.log-item.info { border-left-color: var(--accent-cyan); color: #cbd5e1; }
+.log-item.damage { border-left-color: var(--accent-danger); color: #fda4af; }
+.log-item.special { border-left-color: var(--accent-purple); color: #f0abfc; font-weight: bold; }
+
+.landmark-list {
+  height: 220px;
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px;
+  overflow-y: auto;
+  font-size: 11px;
+}
+
+.landmark-item {
+  padding: 4px 0;
+  border-bottom: 1px solid #1e293b;
+  color: #f87171;
+}
+
+.lm-type {
+  font-size: 9px;
+  color: #94a3b8;
+}
+
+.empty-notice {
+  color: #64748b;
+  text-align: center;
+  padding-top: 40px;
+}
+
+/* マーカー装飾 */
+.pulse-marker-start span, .pulse-marker-goal span {
+  display: block;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: #fff;
+  font-weight: 900;
+  font-size: 14px;
+  line-height: 32px;
+  text-align: center;
+  border: 2px solid #fff;
+}
+
+.pulse-marker-start span {
+  background: var(--accent-cyan);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.8);
+}
+
+.pulse-marker-goal span {
+  background: var(--accent-danger);
+  box-shadow: 0 0 15px rgba(255, 51, 75, 0.8);
+}
+
+.giantess-badge {
+  background: #ffffff;
+  color: #000000;
+  border: 2px solid #ff0055;
+  border-radius: 50%;
+  font-weight: 900;
+  text-align: center;
+  box-shadow: 0 0 16px rgba(255, 0, 85, 0.9);
+}
+
+/* 結果モーダル */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(4, 7, 15, 0.85);
+  backdrop-filter: blur(6px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-card {
+  width: 680px;
+  max-width: 90vw;
+  background: #111a2e;
+  border: 2px solid #3b82f6;
+  border-radius: 8px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+  animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+  background: #172554;
+  padding: 16px 20px;
+  border-bottom: 1px solid #1e3a8a;
+}
+
+.modal-badge {
+  background: var(--accent-danger);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 3px;
+}
+
+.modal-title {
+  font-size: 18px;
+  color: #fff;
+  margin-top: 6px;
+}
+
+.modal-body {
+  padding: 18px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.story-summary-box {
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 4px solid #ef4444;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.story-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #f1f5f9;
+  font-weight: 700;
+}
+
+.summary-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.metric-box {
+  background: #0f172a;
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.metric-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.metric-value {
+  font-size: 20px;
+  font-family: var(--font-mono);
+  font-weight: 900;
+}
+
+.result-detail-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.detail-col h3 {
+  font-size: 12px;
+  color: var(--accent-cyan);
+  margin-bottom: 8px;
+}
+
+.result-ward-list, .result-landmark-list {
+  height: 160px;
+  background: #0b1120;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px;
+  overflow-y: auto;
+  font-size: 11px;
+}
+
+.res-list-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px solid #1e293b;
+}
+
+.modal-footer {
+  background: #0d1527;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
